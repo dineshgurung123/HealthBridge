@@ -1,31 +1,43 @@
 import { useState } from "react";
-import {loginUser} from "../services/authService";
-
-import  {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
 
 const Login = () => {
 
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async(e) => { 
-    e.preventDefault();  
-    
-      try {
-            
-        const data = await loginUser({email, password})
-               
-        console.log("Login successful:", data);
-        
-        localStorage.setItem("token", data.token);
+  const navigate = useNavigate();
 
-        alert("Login successful!");
-        navigate("/")
-      } catch (error) {
-        alert("Login failed. Please check your credentials.");
-      }
+  const handleLogin = async (e) => {
 
+    e.preventDefault();
+
+    try {
+
+      const data = await loginUser({
+        email,
+        password,
+      });
+
+      console.log("Login successful:", data);
+
+      // save token
+      localStorage.setItem("token", data.token);
+
+      // save role
+      localStorage.setItem("role", data.user.roles);
+
+      // redirect home
+      navigate("/");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Login failed");
+
+    }
 
   };
 

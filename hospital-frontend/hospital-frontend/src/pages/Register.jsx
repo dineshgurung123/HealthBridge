@@ -3,13 +3,12 @@ import { RegisterUSer } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-
-     const navigate = useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "patient",
+    roles: "patient",
     age: "",
     gender: "",
     phone: "",
@@ -41,15 +40,11 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
       <form
         onSubmit={handleRegister}
         className="bg-white p-8 rounded shadow-md w-96"
       >
-
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Register
-        </h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
 
         {/* Name */}
         <input
@@ -76,11 +71,11 @@ const Register = () => {
           placeholder="Password"
           className="w-full p-2 mb-4 border rounded"
           onChange={handleChange}
-        />
+        /> 
 
         {/* Role */}
         <select
-          name="role"
+          name="roles"
           className="w-full p-2 mb-4 border rounded"
           onChange={handleChange}
         >
@@ -122,9 +117,7 @@ const Register = () => {
         >
           Register
         </button>
-
       </form>
-
     </div>
   );
 };

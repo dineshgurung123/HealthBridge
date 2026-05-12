@@ -1,25 +1,33 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getDoctors } from "../services/doctorService";
 
 const Doctors = () => {
 
   const [doctors, setDoctors] = useState([]);
 
+  const navigate = useNavigate();
+
   // fetch doctors when page loads
   useEffect(() => {
 
     const fetchDoctors = async () => {
+
       try {
 
         const data = await getDoctors();
 
         console.log(data);
 
+        // store only doctors array
         setDoctors(data);
 
       } catch (error) {
+
         console.log(error);
+
       }
+
     };
 
     fetchDoctors();
@@ -53,6 +61,15 @@ const Doctors = () => {
             <p>
               Experience: {doctor.experience} years
             </p>
+
+            <button
+              onClick={() =>
+                navigate(`/book-appointment/${doctor._id}`)
+              }
+              className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Book Appointment
+            </button>
 
           </div>
 
