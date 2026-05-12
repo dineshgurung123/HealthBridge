@@ -80,7 +80,7 @@ const Register = () => {
           onChange={handleChange}
         >
           <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
+          {/* <option value="doctor">Doctor</option> */}
         </select>
 
         {/* Age */}

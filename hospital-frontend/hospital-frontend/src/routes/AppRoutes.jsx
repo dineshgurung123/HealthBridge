@@ -9,6 +9,7 @@ import BookAppointment from "../pages/BookAppointment";
 import MyAppointments from "../pages/MyAppointments";
 import AdminDashboard from "../pages/AdminDashboard";
 import AdminRoutes from "./AdminRoutes";
+import DoctorDashboard from "../pages/DoctorDashboard";
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
      
      
         <Route path="/doctors" element={ <ProtectedRoutes> <Doctors /> </ProtectedRoutes> } />
+        <Route path="/doctor-dashboard" element={ <ProtectedRoutes> <DoctorDashboard /> </ProtectedRoutes> } />
           
           <Route
           path="/book-appointment/:doctorId"
