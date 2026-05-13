@@ -7,4 +7,4 @@
 ![Dashboard](./Screenshot-2026-05-13-171552.png)
 
 ### Admin Panel
-![Admin](./Screenshot 2026-05-13 171624.png)
+![Admin](./Screenshot-2026-05-13-171624.png)
