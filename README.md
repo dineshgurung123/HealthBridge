@@ -8,3 +8,6 @@
 
 ### Admin Panel
 ![Admin](./Screenshot-2026-05-13-171624.png)
+
+###Admin
+![Admin](./Screenshot-2026-05-13-171659.png)
