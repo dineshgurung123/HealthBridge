@@ -6,7 +6,7 @@ const BASE_URL = "http://localhost:3000/api/doctors";
 // GET ALL DOCTORS
 export const getDoctors = async () => {
   const response = await axios.get(`${BASE_URL}/get-all`);
-  return response.data.doctors;
+  return response.data;
 };
 
 // CREATE DOCTOR
