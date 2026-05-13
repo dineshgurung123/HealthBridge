@@ -1,7 +1,7 @@
 ## Project Screenshots
 
 ### Home Page
-![Home](./Screenshot 2026-05-13 171524.png)
+![Home](./Screenshot-2026-05-13-171524.png)
 
 ### Dashboard
 ![Dashboard](./Screenshot 2026-05-13 171552.png)
