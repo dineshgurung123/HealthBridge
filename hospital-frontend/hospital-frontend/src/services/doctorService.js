@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Base URL
-const BASE_URL = "http://localhost:3000/api/doctors";
+const BASE_URL = "https://healthbridge-v0v2.onrender.com/api/doctors";
 
 // GET ALL DOCTORS
 export const getDoctors = async () => {
@@ -11,36 +11,25 @@ export const getDoctors = async () => {
 
 // CREATE DOCTOR
 export const createDoctor = async (doctorData) => {
-  
   const token = localStorage.getItem("token");
 
-  const response = await axios.post(
-     `${BASE_URL}/create`,
-    doctorData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const response = await axios.post(`${BASE_URL}/create`, doctorData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data;
 };
 
-
-
 export const getDoctorAppointments = async () => {
-
   const token = localStorage.getItem("token");
- 
-  const response = await axios.get(
-    `${BASE_URL}/doctorAppointments`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+
+  const response = await axios.get(`${BASE_URL}/doctorAppointments`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return response.data;
 };

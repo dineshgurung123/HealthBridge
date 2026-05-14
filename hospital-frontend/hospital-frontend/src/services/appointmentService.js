@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/appointments";
+const API_URL = "https://healthbridge-v0v2.onrender.com/api/appointments";
 
 const getAuthHeader = () => {
   return {
