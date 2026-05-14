@@ -14,15 +14,18 @@ const Icon = ({ d, size = 18 }) => (
 );
 
 const ICONS = {
-  dashboard: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
+  dashboard:    "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
   appointments: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
-  doctors: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8",
-  patients: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
-  plus: "M12 5v14M5 12h14",
-  menu: "M3 12h18M3 6h18M3 18h18",
-  x: "M18 6 6 18M6 6l12 12",
-  check: "M20 6 9 17l-5-5",
+  doctors:      "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8",
+  patients:     "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
+  plus:         "M12 5v14M5 12h14",
+  menu:         "M3 12h18M3 6h18M3 18h18",
+  x:            "M18 6 6 18M6 6l12 12",
+  check:        "M20 6 9 17l-5-5",
+  search:       "M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0",
 };
+
+const ACCENT = "#6366f1";
 
 const StatusBadge = ({ status }) => {
   const map = {
@@ -42,6 +45,32 @@ const StatusBadge = ({ status }) => {
     </span>
   );
 };
+
+const SearchBar = ({ value, onChange, placeholder }) => (
+  <div style={{ position: "relative", width: 280 }}>
+    <span style={{
+      position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)",
+      color: "#94a3b8", display: "flex", pointerEvents: "none"
+    }}>
+      <Icon d={ICONS.search} size={15} />
+    </span>
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder || "Search…"}
+      style={{
+        width: "100%", padding: "9px 12px 9px 34px",
+        border: "1.5px solid #e2e8f0", borderRadius: 8,
+        fontSize: 14, color: "#0f172a", outline: "none",
+        fontFamily: "inherit", background: "#f8fafc",
+        boxSizing: "border-box", transition: "border-color 0.15s",
+      }}
+      onFocus={(e) => (e.target.style.borderColor = ACCENT)}
+      onBlur={(e)  => (e.target.style.borderColor = "#e2e8f0")}
+    />
+  </div>
+);
 
 const Modal = ({ open, onClose, title, children }) => {
   if (!open) return null;
@@ -122,15 +151,22 @@ const StatCard = ({ label, value, iconD, accent }) => (
 );
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [patients, setPatients] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab]           = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen]       = useState(true);
+  const [appointments, setAppointments]     = useState([]);
+  const [doctors, setDoctors]               = useState([]);
+  const [patients, setPatients]             = useState([]);
+  const [loading, setLoading]               = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [successMsg, setSuccessMsg] = useState("");
+  const [creating, setCreating]             = useState(false);
+  const [successMsg, setSuccessMsg]         = useState("");
+
+  // ── Search states ──
+  const [apptSearch, setApptSearch]         = useState("");
+  const [apptStatusFilter, setApptStatusFilter] = useState("all");
+  const [doctorSearch, setDoctorSearch]     = useState("");
+  const [patientSearch, setPatientSearch]   = useState("");
+
   const [doctorForm, setDoctorForm] = useState({
     name: "", email: "", password: "", specialization: "", experience: "",
   });
@@ -155,6 +191,32 @@ const AdminDashboard = () => {
     };
     fetchData();
   }, []);
+
+  // ── Filtered lists ──
+  const filteredAppointments = appointments.filter((a) => {
+    const q = apptSearch.toLowerCase();
+    const matchQ = !q ||
+      (a.patientId?.userId?.name || "").toLowerCase().includes(q) ||
+      (a.doctorId?.userId?.name  || "").toLowerCase().includes(q) ||
+      (a.date || "").includes(q);
+    const matchStatus = apptStatusFilter === "all" || a.status === apptStatusFilter;
+    return matchQ && matchStatus;
+  });
+
+  const filteredDoctors = doctors.filter((d) => {
+    const q = doctorSearch.toLowerCase();
+    return !q ||
+      (d.userId?.name  || "").toLowerCase().includes(q) ||
+      (d.userId?.email || "").toLowerCase().includes(q) ||
+      (d.specialization || "").toLowerCase().includes(q);
+  });
+
+  const filteredPatients = patients.filter((p) => {
+    const q = patientSearch.toLowerCase();
+    return !q ||
+      (p.userId?.name  || "").toLowerCase().includes(q) ||
+      (p.userId?.email || "").toLowerCase().includes(q);
+  });
 
   const handleStatusUpdate = async (id, status) => {
     try {
@@ -185,7 +247,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const pendingCount = appointments.filter((a) => a.status === "pending").length;
+  const pendingCount  = appointments.filter((a) => a.status === "pending").length;
   const approvedCount = appointments.filter((a) => a.status === "approved").length;
 
   const navItems = [
@@ -194,8 +256,6 @@ const AdminDashboard = () => {
     { id: "doctors",      label: "Doctors",      icon: ICONS.doctors },
     { id: "patients",     label: "Patients",     icon: ICONS.patients },
   ];
-
-  const ACCENT = "#6366f1";
 
   const inputStyle = {
     width: "100%", padding: "10px 12px", border: "1.5px solid #e2e8f0",
@@ -216,6 +276,15 @@ const AdminDashboard = () => {
     background: color + "14", color, border: `1px solid ${color}30`,
     padding: "4px 10px", borderRadius: 6, fontSize: 12, fontWeight: 600,
     cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap",
+  });
+
+  const filterPill = (active) => ({
+    padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600,
+    cursor: "pointer", fontFamily: "inherit", border: "1.5px solid",
+    borderColor: active ? ACCENT : "#e2e8f0",
+    background: active ? ACCENT + "12" : "transparent",
+    color: active ? ACCENT : "#64748b",
+    transition: "all 0.15s",
   });
 
   return (
@@ -303,7 +372,7 @@ const AdminDashboard = () => {
                 renderRow={(a) => (
                   <tr key={a._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                     <td style={{ padding: "12px 16px", color: "#334155" }}>{a.patientId?.userId?.name || "—"}</td>
-                    <td style={{ padding: "12px 16px", color: "#334155" }}>{a.doctorId?.userId?.name || "—"}</td>
+                    <td style={{ padding: "12px 16px", color: "#334155" }}>{a.doctorId?.userId?.name  || "—"}</td>
                     <td style={{ padding: "12px 16px", color: "#334155" }}>{a.date}</td>
                     <td style={{ padding: "12px 16px", color: "#334155" }}>{a.time}</td>
                     <td style={{ padding: "12px 16px" }}><StatusBadge status={a.status} /></td>
@@ -317,22 +386,35 @@ const AdminDashboard = () => {
         {/* ══ APPOINTMENTS ══ */}
         {activeTab === "appointments" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Appointments</h1>
-                <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>{appointments.length} total</p>
+                <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>
+                  {filteredAppointments.length} of {appointments.length} shown
+                </p>
               </div>
+              <SearchBar value={apptSearch} onChange={setApptSearch} placeholder="Search patient, doctor, date…" />
             </div>
+
+            {/* Status filter pills */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+              {["all", "pending", "approved", "completed", "cancelled"].map((s) => (
+                <button key={s} style={filterPill(apptStatusFilter === s)} onClick={() => setApptStatusFilter(s)}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+
             {loading ? <p style={{ color: "#94a3b8" }}>Loading…</p> : (
               <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0" }}>
                 <Table
                   columns={["#", "Patient", "Doctor", "Date", "Time", "Status", "Actions"]}
-                  data={appointments}
-                  renderRow={(a, i) => (
+                  data={filteredAppointments}
+                  renderRow={(a) => (
                     <tr key={a._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                       <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>{appointments.indexOf(a) + 1}</td>
                       <td style={{ padding: "12px 16px", color: "#334155", fontWeight: 500 }}>{a.patientId?.userId?.name || "—"}</td>
-                      <td style={{ padding: "12px 16px", color: "#334155" }}>{a.doctorId?.userId?.name || "—"}</td>
+                      <td style={{ padding: "12px 16px", color: "#334155" }}>{a.doctorId?.userId?.name  || "—"}</td>
                       <td style={{ padding: "12px 16px", color: "#334155" }}>{a.date}</td>
                       <td style={{ padding: "12px 16px", color: "#334155" }}>{a.time}</td>
                       <td style={{ padding: "12px 16px" }}><StatusBadge status={a.status} /></td>
@@ -345,7 +427,7 @@ const AdminDashboard = () => {
                       </td>
                     </tr>
                   )}
-                  emptyMsg="No appointments found."
+                  emptyMsg="No appointments match your search."
                 />
               </div>
             )}
@@ -355,20 +437,26 @@ const AdminDashboard = () => {
         {/* ══ DOCTORS ══ */}
         {activeTab === "doctors" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Doctors</h1>
-                <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>{doctors.length} registered</p>
+                <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>
+                  {filteredDoctors.length} of {doctors.length} registered
+                </p>
               </div>
-              <button style={btnPrimary} onClick={() => setShowCreateModal(true)}>
-                <Icon d={ICONS.plus} size={16} /> Add Doctor
-              </button>
+              <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                <SearchBar value={doctorSearch} onChange={setDoctorSearch} placeholder="Search name, email, specialization…" />
+                <button style={btnPrimary} onClick={() => setShowCreateModal(true)}>
+                  <Icon d={ICONS.plus} size={16} /> Add Doctor
+                </button>
+              </div>
             </div>
+
             {loading ? <p style={{ color: "#94a3b8" }}>Loading…</p> : (
               <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0" }}>
                 <Table
                   columns={["#", "Name", "Email", "Specialization", "Experience"]}
-                  data={doctors}
+                  data={filteredDoctors}
                   renderRow={(d) => (
                     <tr key={d._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                       <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>{doctors.indexOf(d) + 1}</td>
@@ -394,7 +482,7 @@ const AdminDashboard = () => {
                       <td style={{ padding: "12px 16px", color: "#475569" }}>{d.experience ? `${d.experience} yrs` : "—"}</td>
                     </tr>
                   )}
-                  emptyMsg="No doctors found."
+                  emptyMsg="No doctors match your search."
                 />
               </div>
             )}
@@ -404,15 +492,21 @@ const AdminDashboard = () => {
         {/* ══ PATIENTS ══ */}
         {activeTab === "patients" && (
           <div>
-            <div style={{ marginBottom: 24 }}>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Patients</h1>
-              <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>{patients.length} registered</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}>Patients</h1>
+                <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 14 }}>
+                  {filteredPatients.length} of {patients.length} registered
+                </p>
+              </div>
+              <SearchBar value={patientSearch} onChange={setPatientSearch} placeholder="Search name or email…" />
             </div>
+
             {loading ? <p style={{ color: "#94a3b8" }}>Loading…</p> : (
               <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0" }}>
                 <Table
                   columns={["#", "Name", "Email"]}
-                  data={patients}
+                  data={filteredPatients}
                   renderRow={(p) => (
                     <tr key={p._id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                       <td style={{ padding: "12px 16px", color: "#94a3b8", fontSize: 12 }}>{patients.indexOf(p) + 1}</td>
@@ -432,7 +526,7 @@ const AdminDashboard = () => {
                       <td style={{ padding: "12px 16px", color: "#475569" }}>{p.userId?.email || "—"}</td>
                     </tr>
                   )}
-                  emptyMsg="No patients found."
+                  emptyMsg="No patients match your search."
                 />
               </div>
             )}
@@ -444,11 +538,11 @@ const AdminDashboard = () => {
       <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title="Add New Doctor">
         <form onSubmit={handleCreateDoctor} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {[
-            { name: "name",           placeholder: "Full Name",            type: "text" },
-            { name: "email",          placeholder: "Email Address",        type: "email" },
-            { name: "password",       placeholder: "Password",             type: "password" },
-            { name: "specialization", placeholder: "Specialization",       type: "text" },
-            { name: "experience",     placeholder: "Years of Experience",  type: "number" },
+            { name: "name",           placeholder: "Full Name",           type: "text"     },
+            { name: "email",          placeholder: "Email Address",       type: "email"    },
+            { name: "password",       placeholder: "Password",            type: "password" },
+            { name: "specialization", placeholder: "Specialization",      type: "text"     },
+            { name: "experience",     placeholder: "Years of Experience", type: "number"   },
           ].map((field) => (
             <div key={field.name}>
               <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#475569", marginBottom: 4 }}>

@@ -52,19 +52,3 @@ export const updateAppointmentStatus = async (id, status) => {
 };
 
 
-
-export const getDoctorAppointments = async () => {
-
-  const token = localStorage.getItem("token");
-
-  const response = await axios.get(
-    `${API_URL}/doctor`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  return response.data;
-};

@@ -37,7 +37,7 @@ const Navbar = () => {
           boxShadow: "0 4px 12px rgba(99,102,241,0.4)"
         }}>H</div>
         <span style={{ fontWeight: 800, fontSize: 18, color: "#f8fafc", letterSpacing: "-0.3px" }}>
-          Hospital<span style={{ color: "#818cf8" }}>MS</span>
+          Health<span style={{ color: "#818cf8" }}>Bridge</span>
         </span>
       </Link>
 
